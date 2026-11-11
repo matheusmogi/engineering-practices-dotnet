@@ -8,7 +8,7 @@ against running code.
 
 ## Part 1: TDD as a design tool
 
-Article: _link to be added on publication_
+Article: [TDD Is a Design Tool That Happens to Leave Tests Behind](https://medium.com/@matheusreis_50439/tdd-is-a-design-tool-that-happens-to-leave-tests-behind-3daa5d4c53df)
 
 The article argues that the main output of test-driven development is design
 feedback, and that the regression suite is a by-product. This repository holds
