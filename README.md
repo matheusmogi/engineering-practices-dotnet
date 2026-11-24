@@ -35,7 +35,7 @@ Two decisions the tests forced before any production code existed:
 
 ## Part 2: DDD without the ceremony
 
-Article: https://medium.com/@matheusreis_50439/ddd-without-the-ceremony-find-the-invariants-and-the-aggregate-follows-64a4e5d8d5b8
+Article: [DDD Without the Ceremony: Find the Invariants and the Aggregate Follows](https://medium.com/@matheusreis_50439/ddd-without-the-ceremony-find-the-invariants-and-the-aggregate-follows-64a4e5d8d5b8)
 
 Four new business rules (one currency per order, one line and one price per
 SKU, at most ten units per SKU, placed orders are fixed) no longer fit in a
