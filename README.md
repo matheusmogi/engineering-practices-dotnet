@@ -33,6 +33,30 @@ Two decisions the tests forced before any production code existed:
   same order (6.45 or 6.46). This repository rounds once per order. Which is
   right for you depends on the tax rules you operate under.
 
+## Part 2: DDD without the ceremony
+
+Article: _link to be added on publication_
+
+Four new business rules (one currency per order, one line and one price per
+SKU, at most ten units per SKU, placed orders are fixed) no longer fit in a
+pure pricing function, because they are about which states an order may be in
+and which changes are allowed. The article sorts each rule by what the code
+that checks it needs to see, and lets that decide where it lives.
+
+What to look at:
+
+| File | Why it matters |
+|---|---|
+| `src/Pricing/Order.cs` | The aggregate. Every rule involving several lines, several calls or the order's state, all checked before the first mutation. |
+| `src/Pricing/Percentage.cs` | A value object that stays a struct because its default, 0%, is valid. |
+| `src/Pricing/Money.cs` | Became a class once it carried a currency, because `default(Money)` would have had none. |
+| `src/Pricing/Checkout/CheckoutHandler.cs` | Raw rates are parsed into `Percentage` here, once, at the edge. |
+| `tests/Pricing.Tests/OrderTests.cs` | One test per invariant, each also checking that a rejected change leaves the order untouched. |
+
+Part 1's pricing tests kept every expected figure; only the way they build
+their inputs changed. No base classes, repositories, domain events or mediator
+were added: none of these rules needed them.
+
 ## Running it
 
 Requires the [.NET 10 SDK](https://dotnet.microsoft.com/download).
@@ -43,11 +67,14 @@ dotnet test EngineeringPractices.slnx
 
 ## Scope and simplifications
 
-- `Money` has no currency. A production type would carry one.
+- `Money` assumes two decimal places, which suits USD and EUR but not every
+  currency (JPY has none).
 - Discount and tax are single rates. Real pricing has stacked promotions and
   per-item tax categories; later parts of the series deal with that.
-- `CheckoutHandler` has no test here. It should be covered by an integration
-  test against real infrastructure, which a later part adds.
+- Nothing is persisted yet. An order's invariants only hold in production if
+  saving it is atomic and rejects stale writes (an optimistic concurrency
+  token); a later part adds persistence and an integration test for
+  `CheckoutHandler`.
 
 ## License
 

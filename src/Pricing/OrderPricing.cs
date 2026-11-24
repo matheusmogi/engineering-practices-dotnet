@@ -1,26 +1,21 @@
 namespace Pricing;
 
 /// <summary>
-/// Pure pricing rules: values in, values out. Where the rates come from is the
-/// caller's concern (see <see cref="Checkout.CheckoutHandler"/>).
+/// Pure pricing rules: values in, values out. The function prices a draft for
+/// display as readily as it prices an order being placed; deciding when a
+/// price becomes binding is <see cref="Order.Place"/>'s job, not this one's.
 /// </summary>
 public static class OrderPricing
 {
-    /// <param name="order">The order to price.</param>
-    /// <param name="discountRate">Fraction between 0 and 1, for example 0.10 for 10%.</param>
-    /// <param name="taxRate">Non-negative fraction, for example 0.0825 for 8.25%.</param>
-    public static PriceBreakdown Price(Order order, decimal discountRate, decimal taxRate)
+    public static PriceBreakdown Price(Order order, Percentage discount, Percentage tax)
     {
         ArgumentNullException.ThrowIfNull(order);
-        ArgumentOutOfRangeException.ThrowIfNegative(discountRate);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(discountRate, 1m);
-        ArgumentOutOfRangeException.ThrowIfNegative(taxRate);
 
-        var subtotal = order.Lines.Aggregate(Money.Zero, (sum, line) => sum + line.Subtotal);
-        var discount = subtotal.Percent(discountRate);
-        var taxable = subtotal - discount;
-        var tax = taxable.Percent(taxRate);
+        var subtotal = order.Lines.Aggregate(Money.Zero(order.Currency), (sum, line) => sum + line.Subtotal);
+        var discountAmount = subtotal.Percent(discount);
+        var taxable = subtotal - discountAmount;
+        var taxAmount = taxable.Percent(tax);
 
-        return new PriceBreakdown(subtotal, discount, tax, taxable + tax);
+        return new PriceBreakdown(subtotal, discountAmount, taxAmount, taxable + taxAmount);
     }
 }
